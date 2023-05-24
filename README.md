@@ -1,70 +1,212 @@
-# Getting Started with Create React App
+# Getting Started with Hook
+## useState
+`useState` is a React Hook that lets you add a state to variable to your component
+```java
+ const [state, setState] = useState(initialState);
+```
+### Usage
+-  Adding state to a component
+- Updating state based on the previous state
+- Updating objects and arrays of in state
+- Avoiding creating the initial state
+- Resetting state with a key
+- Storing information from previous renders
+## useEffect
+`useEffect` is a Rect Hook that lets you synchronize a component with an external system
+```java
+useEffect(setup, dependencies?)
+dependencies: nêu ko cung cấp nó sẽ được call đầu khi mount và render khi componet render. nêu cung cấp [] thì được call khi mount mà ko đc render khi component render. nếu cung cấp [state1, state2,..] sự call lại khi các state1 thay đổi
+```
+### Usage
+- Connecting to an external system : call API, connect third-party library
+```java
+import { useEffect } from 'react';
+import { createConnection } from './chat.js';
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+function ChatRoom({ roomId }) {
+  const [serverUrl, setServerUrl] = useState('https://localhost:1234');
 
-## Available Scripts
+  useEffect(() => {
+  	const connection = createConnection(serverUrl, roomId);
+    connection.connect();
+  	return () => {
+      connection.disconnect();
+  	};
+  }, [serverUrl, roomId]);
+  // ...
+}
+```
+- Wrapping Effects in custom Hooks
+```javascript
+function useChatRoom({ serverUrl, roomId }) {
+  useEffect(() => {
+    const options = {
+      serverUrl: serverUrl,
+      roomId: roomId
+    };
+    const connection = createConnection(options);
+    connection.connect();
+    return () => connection.disconnect();
+  }, [roomId, serverUrl]);
+}
+function ChatRoom({ roomId }) {
+  const [serverUrl, setServerUrl] = useState('https://localhost:1234');
 
-In the project directory, you can run:
+  useChatRoom({
+    roomId: roomId,
+    serverUrl: serverUrl
+  });
+  // ...
+```
+- Controlling a non-React widget
+- Fetching data with Effects
+- Specifying reactive dependencies
+- Updating state based on previous state from an Effect
+- Removing unnecessary object dependencies
+- Removing unnecessary function dependencies
+- Reading the latest props and state from an Effect
+- Displaying different content on the server and the client
+## useMemo
+`useMemo` is a React Hook that lets you cache the results of a calculation between re-renders. Trach sai vi ton memory
+```javascript
+const cachedValue = useMemo(calculateValue, dependencies)
+```
+### Usage
+- Skipping expensive recalculation
+```javascript
+import { useMemo } from 'react';
 
-### `npm start`
+function TodoList({ todos, tab, theme }) {
+  const visibleTodos = useMemo(() => filterTodos(todos, tab), [todos, tab]);
+  // ...
+}
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+- Skipping re-rendering of components
+- Memoizing a dependency of another Hook
+- Memoizing a function
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## useCallback
+`useCallback` is a React Hook that lets you cache a function definition between re-renders
+```javascript
+const cachedFn = useCallback(fn, dependencies)
+```
+### Usage
+- Skipping re-rendering of components
+```javascript
+import { useCallback } from 'react';
 
-### `npm test`
+function ProductPage({ productId, referrer, theme }) {
+  const handleSubmit = useCallback((orderDetails) => {
+    post('/product/' + productId + '/buy', {
+      referrer,
+      orderDetails,
+    });
+  }, [productId, referrer]);
+  // ...
+```
+- Updateing state from a memoized callback
+```javascript
+function TodoList() {
+  const [todos, setTodos] = useState([]);
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  const handleAddTodo = useCallback((text) => {
+    const newTodo = { id: nextId++, text };
+    setTodos([...todos, newTodo]);
+  }, [todos]);
+  // ...
+```
+- Preventing an Effect from firing too often
+```javascript
+function ChatRoom({ roomId }) {
+  const [message, setMessage] = useState('');
 
-### `npm run build`
+  const createOptions = useCallback(() => {
+    return {
+      serverUrl: 'https://localhost:1234',
+      roomId: roomId
+    };
+  }, [roomId]); // ✅ Only changes when roomId changes
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  useEffect(() => {
+    const options = createOptions();
+    const connection = createConnection();
+    connection.connect();
+    return () => connection.disconnect();
+  }, [createOptions]); // ✅ Only changes when createOptions changes
+  // ...
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+- Optimizing a custom Hook
+```javascript
+function useRouter() {
+  const { dispatch } = useContext(RouterStateContext);
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  const navigate = useCallback((url) => {
+    dispatch({ type: 'navigate', url });
+  }, [dispatch]);
 
-### `npm run eject`
+  const goBack = useCallback(() => {
+    dispatch({ type: 'back' });
+  }, [dispatch]);
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+  return {
+    navigate,
+    goBack,
+  };
+}
+```
+## useRef
+`useRef` is a React Hook that lets you reference a value that’s not needed for rendering.
+```javascript
+const ref = useRef(initialValue)
+```
+### Usage
+- Referencing a value with a ref
+- Manipulating the DOM with a ref
+- Avoiding creating the ref contents
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## useReducer
+`useReducer` is a React Hook that lets you add a reducer to your component
+```javascript
+const [state, dispatch] = useReducer(reducer, initialArg, init?)
+Reference:
+useReducer(reducer, initialArg, init?)
+dispatch function
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Custom Hook 
+Là 1 function bắt đầu chữ use. Gọi 1 react Hook phía trong
+### Usage
+- Tối ưu code
+- Clean code
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+# React 18
+- Concurrency
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## useId
+`useId` is a React Hook for generating unique IDs that can be passed to accessibility attributes
+```javascript
+const id = useId()
+```
+### Usage
+- Generating unique IDs for accessibility attributes
+- Generating IDs for several related elements
+- Specifying a shared prefix for all generated IDs
+## useTransition
+`useTransition` is a React Hook that lets you update the state with blocking the UI
+```javascript
+const [isPending, startTransition] = useTransition()
+```
+### Usage
+- Making a state update as a non-blocking transition
+- Updating the parent component in a transition
+- Displaying a pending visual state the trasition
+- Preventing unwanted loading idicators
+- Building a Suspense-enabled router
+## useDegerredValue
+`useDegerredValue` is a React Hook that lets you defer updating a part of the UI
+### Usage
+- Showing stale content while fresh content is loading
+- Indicating that the content is table
+- Deferring re-rendering for a part of the UI

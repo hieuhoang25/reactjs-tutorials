@@ -5,6 +5,11 @@ import Textfield  from '@atlaskit/textfield';
 import Button  from '@atlaskit/button';
 import { useCallback, useEffect, useState } from 'react';
 import { v4 } from 'uuid';
+import AppEffect from './hook/effect/AppEffect';
+import AppRef from './hook/ref';
+import AppReducer from './hook/reducer';
+import CustomHook from './hook/custom';
+import UseId from './hook/id';
 function App() {
   const [todoList, setTodoList] = useState([]);
   const [textInput, setTextInput] = useState('');
@@ -35,22 +40,13 @@ function App() {
   }
  },[])
   return (
-    <div className="App">
-     <h3>Danh sach can lam</h3>
-     <Textfield  name="add-todo"
-      placeholder="Them viec can lam"
-      elemAfterInput={
-        <Button 
-        onClick={onAddBtnClick}
-         isDisabled={!textInput} 
-         appearance='primary'>Them</Button>
-      }
-      css={{padding:"2px 4px 2px"}}
-      value={textInput}
-      onChange={onTextInputChange}
-      ></Textfield>
-     <TodoList  todoList = {todoList} onCheckBtnClick={onCheckBtnClick}/>
-    </div>
+    <div >
+      {/* <AppEffect/> */}
+      {/* <AppRef/> */}
+      {/* <AppReducer/> */}
+      {/* <CustomHook/> */}
+      <UseId/>
+     </div>
   );
 }
 
