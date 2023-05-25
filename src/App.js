@@ -1,15 +1,13 @@
-import logo from './logo.svg';
+
 import './App.css';
-import TodoList from './components/TodoList';
-import Textfield  from '@atlaskit/textfield';
-import Button  from '@atlaskit/button';
+
 import { useCallback, useEffect, useState } from 'react';
 import { v4 } from 'uuid';
-import AppEffect from './hook/effect/AppEffect';
-import AppRef from './hook/ref';
-import AppReducer from './hook/reducer';
-import CustomHook from './hook/custom';
-import UseId from './hook/id';
+
+import Header from './hook/context/Header';
+import Content from './hook/context/Content';
+import Sidebar from './hook/context/Sidebar';
+import { AppContext } from './Context/AppContext';
 function App() {
   const [todoList, setTodoList] = useState([]);
   const [textInput, setTextInput] = useState('');
@@ -39,14 +37,18 @@ function App() {
     setTodoList(JSON.parse(todoListLocal))
   }
  },[])
+ const [isOpen, setIsOpen] = useState(false);
   return (
-    <div >
-      {/* <AppEffect/> */}
-      {/* <AppRef/> */}
-      {/* <AppReducer/> */}
-      {/* <CustomHook/> */}
-      <UseId/>
-     </div>
+    <div
+      className='App'
+    >
+      <AppContext>
+      <Header isOpen={isOpen} setIsOpen={setIsOpen} />
+      <Content isOpen={isOpen} />
+      {isOpen && <Sidebar />}
+      </AppContext>
+     
+    </div>
   );
 }
 

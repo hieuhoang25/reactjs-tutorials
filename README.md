@@ -210,3 +210,14 @@ const [isPending, startTransition] = useTransition()
 - Showing stale content while fresh content is loading
 - Indicating that the content is table
 - Deferring re-rendering for a part of the UI
+## useContext
+`useContext` is a React Hook that lets you read and subcribe to context from your component.
+```javascript
+const value = useContext(SomeContext)
+```
+### Usage 
+- Passing data deeply into the tree
+- Updating data passed via context
+- Specifying a fallback default value
+- Overriding context for a part of the tree
+- Optimizing re-renders when passing objects and functions
